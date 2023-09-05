@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Members">
+
+	<select id="idcheck" resultType="member" parameterType="String">
+		select *
+		from member3 where id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="member">
+		insert into member3
+		values(#{id}, #{password}, #{name}, #{age}, #{gender}, #{email}, #{auth})
+	</insert>
+
+	<update id="update" parameterType="member">
+		UPDATE member3
+		set name =
+		#{name}, age = #{age}, gender = #{gender}, email = #{email}
+		where id = #{id}
+	</update>
+
+	<select id="list" parameterType="java.util.Map" resultType="member">
+		select * 
+		from (select rownum rnum, m.*
+			  from ( SELECT * FROM MEMBER3 WHERE ID != 'admin'
+					<include refid="search_"/>
+					 order by id
+			  		) m
+					 where rownum &lt;= #{end}
+				    )
+		where rnum &gt;= #{start} and rnum &lt;= #{end}
+	</select>
+	
+	<select id="searchCount" resultType="int" parameterType="java.util.Map">
+		SELECT COUNT(*) FROM MEMBER3 WHERE ID != 'admin'
+		<include refid="search_"/>
+	</select>
+	
+	<sql id = "search_">
+		<if test="search_word != null">
+			AND 
+			<choose>
+				<when test='search_field=="id"'>id</when>
+				<when test='search_field=="name"'>name</when>
+				<when test='search_field=="age"'>age</when>
+				<when test='search_field=="gender"'>gender</when>
+			</choose>
+			LIKE #{search_word}
+		</if>
+	</sql>
+	
+	<delete id="delete" parameterType="String">
+		delete from Member3
+		where id = #{id}
+	</delete>
+	
+
+</mapper>

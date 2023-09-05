@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<typeAliases>
+		<typeAlias alias="member" 	type="com.naver.myhome.domain.Member" />
+		<typeAlias alias="board" 	type="com.naver.myhome.domain.Board" />
+		<typeAlias alias="comment" 	type="com.naver.myhome.domain.Comment" />
+	</typeAliases>
+	
+	<mappers>
+		<mapper resource="sql/member.xml" />
+		<mapper resource="sql/board.xml" />
+		<mapper resource="sql/comment.xml" />
+	</mappers>
+	
+</configuration>

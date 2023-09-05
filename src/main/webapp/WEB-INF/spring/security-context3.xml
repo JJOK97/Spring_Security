@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+<!-- 
+   1.<security:http> :로그인을 위한 폼 설정, 특정 주소에 대한 권한 설정, 로그인 유지, 로그 아웃에 대한 설정
+     (1) <security:form-login>: 로그인 폼에 대한 설정 태그
+     
+   2.<security:authentication-manager>: 인증을 담당  
+ -->
+ <!-- 
+ 	<security:form-login>의 속성
+ 	(1) login-page : 로그인 페이지 URL 설정
+ 	
+ 	(2) login-processing-url : 로그인 처리하는 URL (login form의 actiojn에 해당하는 경로 적으세요)
+ 							   컨트롤러에서 작성한 loginProcess는 작동하지 않고 스플이 시큐리티가 처리합니다.
+ 							   컨트롤러의 loginProcess를 제겋바니다.
+ 							   
+ 	(3) default-target-url : 입력한 아이디와 비번이 일치해서 성공적으로 로그인 후 이동할 URL
+ 	
+ 	(4) username-parameter : 사용자의 계정명을 어떠한 파라미터명으로 받을 것 인지 설정합니다.
+ 							 form의 input 태그의 사용자 계정 name과 동일하게 작성합니다.
+ 							 우리가 사용하는 아이디가 스프링 시큐리티에서는 username으로 사용됩니다.
+ 							 
+ 	(5) password-parameter : form의 input 태그 패스워드 name과 동일하게 작성합니다.
+-->
+<!-- 
+	1. 시큐리티는 인증을 담당하는 AuthenticationManager(인증매니저)가 존재합니다.
+		이 인증매니저는 AtuhenticationProvider라는 구현체를 이용해서 처리합니다.
+		AuthenticationProvider 인터페이스는 화면에서 입력한 로그인 정보와 DB에서 가져온 사용자의 정보를
+		비교해주는 인터페이스입니다.
+		DB에서 사용자의 정보를 가져오기 위해 UserDetailsService 구현체를 이용합니다.
+		
+	2. UserDetailsService 구현체의 빈 이름을 'user-service-ref' 속성에 설정합니다.
+	   UserDetailsService 구현체는 유저 정보를 가져오는 클래스입니다.
+	  
+	3. servlet-context.xml의
+		<bean id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+		를 root-context.xml로 옮겨옵니다.
+		
+		servlet-context.xml에서 설정된 빈은 security-context.xml에서 사용할 수 있습니다.
+		
+	4. <security:password-encoder ref="bcryptPasswordEncoder" /> ;
+		password-encoder: 비밀번호 암호화에 사용될 정보를 설정합니다.
+		bcryptPasswordEncoder는 root-context.xml에서 설정한 빈의 이름입니다.
+ -->
+    <security:http>
+      <security:form-login login-page="/member/login"
+      					   default-target-url="/board/list"
+      					   login-processing-url="/member/loginProcess"
+      					   username-parameter="id"
+      					   password-parameter="password"
+      					   />
+   	</security:http>
+   
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="customUserDetailsService">
+			<security:password-encoder ref="bcryptPasswordEncoder"/>
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+	<!-- com.naver.security.CustomUserDetailsService.java의 @Service를 인식하기 위해 사용합니다. -->
+	<context:component-scan base-package="com.naver.security"/>
+
+</beans>

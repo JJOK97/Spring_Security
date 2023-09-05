@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:security="http://www.springframework.org/schema/security"
+   xsi:schemaLocation="http://www.springframework.org/schema/security 
+                  http://www.springframework.org/schema/security/spring-security.xsd
+                  http://www.springframework.org/schema/beans
+                  http://www.springframework.org/schema/beans/spring-beans.xsd">
+   <!-- 
+   1.<security:http> :로그인을 위한 폼 설정, 특정 주소에 대한 권한 설정, 로그인 유지, 로그 아웃에 대한 설정
+     (1) <security:form-login>: 로그인 폼에 대한 설정 태그
+     
+   2.<security:authentication-manager>: 인증을 담당  
+
+ -->
+   <security:http>
+      <security:form-login />
+   </security:http>
+
+   <security:authentication-manager>
+
+   </security:authentication-manager>
+
+</beans>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:security="http://www.springframework.org/schema/security"
+   xsi:schemaLocation="http://www.springframework.org/schema/security 
+                  http://www.springframework.org/schema/security/spring-security.xsd
+                  http://www.springframework.org/schema/beans
+                  http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- 
+   1.<security:http> :로그인을 위한 폼 설정, 특정 주소에 대한 권한 설정, 로그인 유지, 로그 아웃에 대한 설정
+     (1) <security:form-login>: 로그인 폼에 대한 설정 태그
+     
+   2.<security:authentication-manager>: 인증을 담당  
+ -->
+ <!-- 
+ 	<security:form-login>의 속성
+ 	(1) login-page : 로그인 페이지 URL 설정
+ 	
+ 	(2) login-processing-url : 로그인 처리하는 URL (login form의 actiojn에 해당하는 경로 적으세요)
+ 							   컨트롤러에서 작성한 loginProcess는 작동하지 않고 스플이 시큐리티가 처리합니다.
+ 							   컨트롤러의 loginProcess를 제겋바니다.
+ 							   
+ 	(3) default-target-url : 입력한 아이디와 비번이 일치해서 성공적으로 로그인 후 이동할 URL
+ 	
+ 	(4) username-parameter : 사용자의 계정명을 어떠한 파라미터명으로 받을 것 인지 설정합니다.
+ 							 form의 input 태그의 사용자 계정 name과 동일하게 작성합니다.
+ 							 우리가 사용하느 ㄴ아이디가 스프링 시큐리티에서는 username으로 사용됩니다.
+ 							 
+ 	(5) password-parameter : form의 input 태그 패스워드 name과 동일하게 작성합니다.
+-->
+   <security:http>
+      <security:form-login login-page="/member/login"
+      					   default-target-url="/board/list"
+      					   login-processing-url="/member/loginProcess"
+      					   username-parameter="id"
+      					   password-parameter="password"
+      					   />
+   </security:http>
+
+   <security:authentication-manager>
+
+   </security:authentication-manager>
+
+</beans>

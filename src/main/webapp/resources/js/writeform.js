@@ -1,5 +1,12 @@
 $(document).ready(function(){
-	
+   
+   /*
+      헤더의
+      <span id="login">${pinfo.username}</span>님(로그아웃)
+      값을 글쓴이 값으로 설정합니다.
+   */
+   $("#board_name").val($("#loginid").text());
+   
 	$("#upfile").change(function(){
 		console.log($(this).val())		//c:\fakepath\upload.png
 		const inputfile = $(this).val().split('\\');
@@ -8,7 +15,7 @@ $(document).ready(function(){
 	});
 	
 	// submit 버튼 클릭할 때 이벤트 부분
-	$("form[name=boardform]").submit(function() {
+	$("form[name=add]").submit(function() {
 		
 		if ($.trim($("#board_pass").val()) == "") {
 			alert("비밀번호를 입력하세요");
@@ -29,8 +36,5 @@ $(document).ready(function(){
 
 		}
 	}); //submit end
-	
-	
-	
-	
-})
+   
+}) //ready end

@@ -35,12 +35,28 @@
 
 
 	<security:http>
-		<security:form-login login-page="/member/login"
+	<!-- pattern="/resource/**" access="permitAll" : 정적 리소스는 모드 접근 가능
+		 access="hasRole('ROLE_ADMIN')" : 'ROLE_ADMIN' 권한이 있어야 접근 가능
+		 access="hasAnyRole('ROLE_MEMBER', 'ROLE_ADMIN')" : 'ROLE_MEMBER'나 'ROLE_ADMIN'있어야 접근가능
+	-->
+	<security:intercept-url pattern="/resources/**"			access="permitAll" />
+	<security:intercept-url pattern="/member/login"			access="permitAll" />
+	<security:intercept-url pattern="/member/join"			access="permitAll" />
+	<security:intercept-url pattern="/member/idcheck"		access="permitAll" />
+	<security:intercept-url pattern="/member/joinProcess"	access="permitAll" />
+	<security:intercept-url pattern="/member/list"	access="hasRole('ROLE_ADMIN')" />
+	<security:intercept-url pattern="/**"					access="hasAnyRole('ROLE_MEMBER', 'ROLE_ADMIN')" />
+
+	
+			<security:form-login login-page="/member/login"
 							 default-target-url="/board/list"
 							 login-processing-url="/member/loginProcess" 
 							 username-parameter="id"
 							 password-parameter="password"
 							 />
+							 
+			<security:access-denied-handler ref="customAccessDeniedHandler"/>
+			
 	</security:http>
 
    <!-- 

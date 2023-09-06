@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
 <html>
 <head>
 <title>MVC 게시판 - view</title>
@@ -105,6 +107,7 @@ form[action=down] > input[type=submit]{
                <c:if test="${!empty boarddata.BOARD_FILE }">
                   <td><img src="../resources/image/down.png" width="10px">
                        <form method="post" action="down" style="height:0px">
+                          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                           <input type="hidden" value="${boarddata.BOARD_FILE}" name="filename">
                           <input type="hidden" value="${boarddata.BOARD_ORIGINAL}" name="original">
                           <input type="submit" value="${boarddata.BOARD_ORIGINAL}">
@@ -123,7 +126,10 @@ form[action=down] > input[type=submit]{
             <td colspan="2" class="center">
                <button class="btn btn-primary">댓글</button>
                 <span id="count">${count}</span>
-               <c:if test="${boarddata.BOARD_NAME == id || id == 'admin' }">
+                
+                <sec:authorize access="isAuthenticated()">
+                <sec:authentication property="principal" var="pinfo"/>
+               <c:if test="${boarddata.BOARD_NAME == pinfo.username || pinfo.username == 'admin' }">
                   <a href="modifyView?num=${boarddata.BOARD_NUM }">
                      <button class="btn btn-warning">수정</button>
                   </a>
@@ -132,6 +138,8 @@ form[action=down] > input[type=submit]{
                      <button class="btn btn-danger" data-toggle="modal" data-target="#myModal">삭제</button>
                   </a>
                </c:if>
+               </sec:authorize>
+               
                   <a href="replyView?num=${boarddata.BOARD_NUM }">
                      <button class="btn btn-info">답변</button>
                   </a>
@@ -160,6 +168,7 @@ form[action=down] > input[type=submit]{
                         </div>
                         <button type="submit" class="btn btn-primary">전송</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">취소</button>
+                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                      </form>
                   </div>
                </div>

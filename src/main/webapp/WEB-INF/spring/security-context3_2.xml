@@ -40,7 +40,7 @@
 							 login-processing-url="/member/loginProcess" 
 							 username-parameter="id"
 							 password-parameter="password"
-							 />
+							 authentication-failure-handler-ref="loginFailHandler" />
 	</security:http>
 
    <!-- 

@@ -8,20 +8,18 @@
 <link href="${pageContext.request.contextPath}/resources/css/login.css" type="text/css" rel ="stylesheet">
 <script src="${pageContext.request.contextPath}/resources/js/jquery-3.7.0.js"></script>
 <script>
-	const result="${result}";
-	if(result == 'joinSuccess'){
-		alert("회원가입을 축하합니다.")
-	} else if(result == '0') {
-		alert("비밀번호가 일치하지 않습니다.")
-	} else if(result == '-1') {
-		alert("아이디가 존재하지 않습니다.")
-	}
-	
-	$(function(){
-		$(".join").click(function(){
-			location.href = "${pageContext.request.contextPath}/member/join";
-		});
-	})
+
+if("${result}" == 'joinSuccess'){
+    alert("회원가입을 축하합니다.");
+ }else if("${loginfail}" == 'loginFailMsg'){
+    alert("아이디나 비밀번호 오류 입니다.");
+ }
+
+ $(function() {
+    $(".join").click(function() {
+       location.href = "${pageContext.request.contextPath}/member/join";
+    });
+ })
 </script>
 </head>
 <body>
@@ -41,7 +39,7 @@
    <input type="password" name="password" placeholder="Enter password" required >
    
    <label>
-   	<input type="checkbox" name="remember" style="margin-bottom:15px"
+   	<input type="checkbox" name="remember-me" style="margin-bottom:15px"
    		<c:if test ="${!empty svaeid }">
    			checked
    		</c:if>

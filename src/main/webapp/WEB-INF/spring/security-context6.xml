@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:security="http://www.springframework.org/schema/security"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+<!-- 
+   1.<security:http> :로그인을 위한 폼 설정, 특정 주소에 대한 권한 설정, 로그인 유지, 로그 아웃에 대한 설정
+     (1) <security:form-login>: 로그인 폼에 대한 설정 태그
+     
+   2.<security:authentication-manager>: 인증을 담당  
+ -->
+ <!-- 
+    <security:form-login>의 속성
+    (1) login-page : 로그인 페이지 URL 설정
+    
+    (2) login-processing-url : 로그인 처리하는 URL (login form의 action에 해당하는 경로 적으세요)
+                         컨트롤러에서 작성한 loginProcess는 작동하지 않고 스프링 시큐리티가 처리합니다.
+                         컨트롤러의 loginProcess를 제거합니다.
+    
+    (3) default-target-url : 입력한 아이디와 비번이 일치해서 성공적으로 로그인 후 이동할 URL
+    
+    (4) username-parameter : 사용자의 계정명을 어떠한 파라미터명으로 받을 것 인지 설정합니다.
+                         form의 input 태그의 사용자 계정 name과 동일하게 작성합니다.
+                         우리가 사용하는 아이디가 스프링 시큐리티에서는 username으로 사용됩니다.
+    
+    (5) password-parameter : form의 input 태그 패스워드 name과 동일하게 작성합니다.
+    
+    (6) authentication-failure-handler-ref : 인증 실패를 처리하는 데 사용되며
+       AuthenticationFailureHandler를 구현한 객체의 아이디를 속성값으로 설정합니다.
+       authentication-failure-url과 함께 사용하면 안됩니다.
+  -->
+   <security:http>
+   
+      <!-- 
+         pattern="/resources/**" access="permitAll" : 정적 리소스는 모두 접근 가능
+         access = "hasRole('ROLE_ADMIN')" : "ROLE_ADMIN" 권한이 있어야 접근 가능
+         access = "hasAnyRole('ROLE_MEMBER' , 'ROLE_ADMIN')" : 'ROLE_MEMBER' 나 'ROLE_ADMIN' 있어야 접근가능
+       -->
+       <security:intercept-url pattern="/resources/**"      access="permitAll" />
+       <security:intercept-url pattern="/member/login"      access="permitAll" />
+       <security:intercept-url pattern="/member/join"         access="permitAll" />
+       <security:intercept-url pattern="/member/idcheck"      access="permitAll" />
+       <security:intercept-url pattern="/member/joinProcess"   access="permitAll" />
+       <security:intercept-url pattern="/member/list"         access="hasRole('ROLE_ADMIN')" />
+       <security:intercept-url pattern="/**"               access="hasAnyRole('ROLE_MEMBER','ROLE_ADMIN')" />
+       <!-- login-page="/member/login" : 로그인 페이지의 주소 -->
+      <security:form-login login-page="/member/login"
+                        login-processing-url="/member/loginProcess"
+                        username-parameter="id"
+                        password-parameter="password"
+                        authentication-failure-handler-ref="loginFailHandler"
+                        authentication-success-handler-ref="loginSuccessHandler"
+                        />
+                        
+       <security:access-denied-handler ref="customAccessDeniedHandler"/>
+       
+       <!-- 
+             (1) data-source-ref : 참조할 DataSource bean 을 지정합니다.
+             (2) remember-me-parameter : 웹 화면에서 로그인할 때 대부분 'remember-me'는 체크박스를 이용합니다.
+                이때 체크박스의 name 속성값을 지정합니다.
+             (3) remember-me-cookie : 브라우저에 보관되는 쿠키의 이름을 지정합니다.
+                기본값은 'remember-me' 입니다.
+             (4) token-validity-seconds : 쿠키의 유효시간을 지정합니다.
+        -->
+        <security:remember-me
+                       data-source-ref="dataSource"
+                       remember-me-parameter="remember-me"
+                       remember-me-cookie="remember-me"
+                       token-validity-seconds="2419200"/> <!-- 4주 -->
+                       
+        <!-- 
+           (1) logout-success-url : 로그아웃 후 이동할 주소
+           (2) logout-url : 로그아웃 요청 경로 ( 여기서 처리하기 때문에 컨트롤러 logout 제거 합니다.
+                                    post 방식을 요구합니다. )
+           (3) invalidate-session : 로그아웃시 세션 속성들 제거
+           (4) delete-cookies : 쿠키 제거      
+         -->
+         <security:logout logout-success-url="/member/login"
+                        logout-url="/member/logout"
+                        invalidate-session="true"
+                        delete-cookies="true"
+                        />
+       
+       
+   </security:http>
+   
+   <!-- 
+         1. 시큐리티는 인증을 담당하는 AuthenticationManager(인증매니저)가 존재합니다.
+            이 인증매니저는 AutheticationProvider 라는 구현체를 이용해서 처리합니다.
+            AuthenicationProvider 인터페이스는 화면에서 입력한 로그인 정보와 DB에서 가져온 사용자의
+            정보를 비교해주는 인터페이스입니다.
+            DB에서 사용자의 정보를 가져오기 위해 UserDetailService 구현체를 이용합니다.
+            
+         2. UserDetatilsService 구현체의 빈 이름을 'user-service-ref' 속성에 설정합니다.
+            UserDetatilsService 구현체는 유저 정보를 가져오는 클래스입니다.
+            
+         3. servlet-context-xml의
+            <bean id = "bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+            를 root-context.xml 로 옮겨옵니다.
+            
+            servlet-context.xml에서 설정된 빈은 security-context.xml에서 사용할 수 없습니다.
+         
+         4. <security:password-encoder ref="bcryptPasswordEncoder"/> :
+            password-encoder: 비밀번호 암호화에 사용될 정보를 설정합니다.
+            bcryptPasswordEncodere는 root-context.xml에서 설정한 빈의 이름입니다.
+            
+    -->
+   <security:authentication-manager>
+                     <security:authentication-provider    
+                            user-service-ref="customUserDetailsService">
+                        <security:password-encoder ref="bcryptPasswordEncoder" />
+                  </security:authentication-provider>
+            </security:authentication-manager>
+            
+     <!-- com.naver.security.CustomUserDetailsService.java의 @Service를 인식하기 위해 사용합니다. -->         
+      <context:component-scan base-package="com.naver.security"/>
+
+</beans>

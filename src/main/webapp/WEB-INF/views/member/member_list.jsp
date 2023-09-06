@@ -133,7 +133,7 @@ td:nth-child(1) {
 </head>
 <body>
    <div class="container">
-      <form action="memberList">
+      <form action="list">
          <div class="input-group">
             <select id="viewcount" name="search_field">
                <option value="0" selected>아이디</option>
@@ -164,7 +164,7 @@ td:nth-child(1) {
             <tbody>
                <c:forEach var="m" items="${memberlist}">
                   <tr>
-                     <td><a href="info?id=${m.id}" name = "userId">${m.id}</a></td>
+                     <td><a href="info?id=${m.id}" name="userId">${m.id}</a></td>
                      <td>${m.name}</td>
                      <td><a href="delete?id=${m.id}">삭제</a></td>
                   </tr>
@@ -231,5 +231,6 @@ td:nth-child(1) {
    <c:if test="${listcount == 0 &&  !empty search_word}">
       <h1>검색 결과가 없습니다.</h1>
    </c:if>
+   
 </body>
 </html>

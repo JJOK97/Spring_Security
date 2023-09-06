@@ -4,7 +4,7 @@
 <html>
 <head>
 <title>회원관리 시스템 회원수정 페이지</title>
-<link href="../resources/css/update.css" type="text/css" rel ="stylesheet">
+<link href="../resources/css/join.css" type="text/css" rel ="stylesheet">
 <style>
 h3 {text-align: center; color: #1a92b9;}
 input[type=file]{display: none;}
@@ -40,6 +40,9 @@ input[type=file]{display: none;}
       <button type="submit" class="submitbtn">수정</button>
       <button type="button" class="cancelbtn">취소</button>
    </div>
+   
+   	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+   	
 </form>
 <script>
    //성별 체크하는 부분
@@ -58,7 +61,7 @@ input[type=file]{display: none;}
             //+는 1회 이상 반복을 의미합니다. {1,}와 동일합니다.
             //\w+ 는 [A-Za-z0-9_]를 1개이상 사용하라는 의미입니다.
             const pattern = /^\w+@\w+[.]\w{3}$/;
-            const email = $("input:eq(6)").val();
+            const email = $(this).val();
             if (!pattern.test(email)) {
                $("#email_message").css('color', 'red').html("이메일형식이 맞지 않습니다.");
                checkemail=false;

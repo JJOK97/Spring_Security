@@ -125,7 +125,7 @@
                      and   BOARD_RE_LEV = #{BOARD_RE_LEV} 
                      and   BOARD_RE_SEQ > #{BOARD_RE_SEQ})   ,
                      (select max(BOARD_RE_SEQ) 
-                     from board  
+                     from board3  
                         where BOARD_RE_REF = #{BOARD_RE_REF} ))
                      )
       ]]>

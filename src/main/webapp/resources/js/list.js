@@ -38,15 +38,21 @@ function setPaging(href, digit){
 }
 
 
-function ajax(sdata){
-   console.log(sdata)
-   
+function ajax(data){
+   console.log(data)
+   let token = $("meta[name='_csrf']").attr("content");
+   let header = $("meta[name='_csrf_header']").attr("content");
+   output = "";
    $.ajax({
-      type    : "POST",
-      data    : sdata,
-      url      : "list_ajax",
-      dataType: "json",
-      cache   : false,
+      type       : "POST",
+      data       : data,
+      url         : "list_ajax",
+      dataType    : "json",
+      cache      : false,
+      beforeSend : function(xhr)
+      {      //데이터를 전송하기 전에 헤더에 csrf값을 설정합니다.
+         xhr.setRequestHeader(header, token);
+      },
       success   : function(data){
          $("#viewcount").val(data.limit);
          $("thead").find("span").text("글 개수 : " + data.listcount);
@@ -67,7 +73,7 @@ function ajax(sdata){
                
                let img ="";
                if(item.board_RE_LEV>0){
-                  img="<img src ='../resources/image/AnswerLine.gif'>";
+                  img="<img src ='../resources/image/line.gif'>";
                }
                
                let subject=item.board_SUBJECT;

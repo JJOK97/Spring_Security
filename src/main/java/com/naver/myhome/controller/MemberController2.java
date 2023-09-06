@@ -1,10 +1,10 @@
 package com.naver.myhome.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -56,12 +56,15 @@ public class MemberController2 {
    // http://localhost:8088/myhome4/member/login
    // 로그인 폼이동
    @RequestMapping(value = "/login", method = RequestMethod.GET)
-   public ModelAndView login(ModelAndView mv, @CookieValue(value="saveid", required=false) Cookie readCookie) {
+   public ModelAndView login(ModelAndView mv, @CookieValue(value="saveid", required=false) Cookie readCookie, HttpSession session, Principal userPrincipal) {
       if(readCookie != null) {
-         mv.addObject("saveid",readCookie.getValue());
-         logger.info("cookie time=" + readCookie.getMaxAge());
-      }
+    	 logger.info("저장된 아이디 : " + userPrincipal.getName());
+         mv.setViewName("redirect:/board/list");
+      } else {
          mv.setViewName("member/member_loginForm");
+         mv.addObject("loginfail", session.getAttribute("loginfail")); // 세션에 저장된 값을 한 번만 실행 될 수 있도록 mv에 저장함
+         session.removeAttribute("loginfail"); //세션의 값은 제거합니다.
+      }
          return mv;
    }
    
@@ -118,63 +121,57 @@ public class MemberController2 {
    }
    
    //로그인 처리
-   @RequestMapping(value = "/loginProcess", method = RequestMethod.POST)
-   public String loginProcess(
-                        @RequestParam("id") String id,
-                        @RequestParam("password") String password,
-                        @RequestParam(value="remember", defaultValue="", required=false)
-                                   String remember,
-                                   HttpServletResponse response,
-                                   HttpSession session,
-                                   RedirectAttributes rattr) {
-	   
-      int result = memberService.isId(id, password);
-      
-      logger.info("결과 : " + result);
-      
-      if (result == 1) {
-         //로그인 성공
-         session.setAttribute("id", id);
-         Cookie savecookie = new Cookie("saveid",id);
-         if(!remember.equals("")) {
-            savecookie.setMaxAge(60*60);
-            logger.info("쿠키저장 : 60*60");
-         }else {
-            logger.info("쿠키저장 : 0");
-            savecookie.setMaxAge(0);
-         }
-         response.addCookie(savecookie);
-         
-         return "redirect:/board/list";
-      } else {
-    	  rattr.addFlashAttribute("result", result);
-    	  return "redirect:login";
-      }
-	
-   }
+//   @RequestMapping(value = "/loginProcess", method = RequestMethod.POST)
+//   public String loginProcess(
+//                        @RequestParam("id") String id,
+//                        @RequestParam("password") String password,
+//                        @RequestParam(value="remember", defaultValue="", required=false)
+//                                   String remember,
+//                                   HttpServletResponse response,
+//                                   HttpSession session,
+//                                   RedirectAttributes rattr) {
+//	   
+//      int result = memberService.isId(id, password);
+//      
+//      logger.info("결과 : " + result);
+//      
+//      if (result == 1) {
+//         //로그인 성공
+//         session.setAttribute("id", id);
+//         Cookie savecookie = new Cookie("saveid",id);
+//         if(!remember.equals("")) {
+//            savecookie.setMaxAge(60*60);
+//            logger.info("쿠키저장 : 60*60");
+//         }else {
+//            logger.info("쿠키저장 : 0");
+//            savecookie.setMaxAge(0);
+//         }
+//         response.addCookie(savecookie);
+//         
+//         return "redirect:/board/list";
+//      } else {
+//    	  rattr.addFlashAttribute("result", result);
+//    	  return "redirect:login";
+//      }
+//	
+//   }
    
    @GetMapping(value = "update")
    public ModelAndView Memberupdate(
-         ModelAndView mv, 
-         HttpServletRequest request,
-         HttpSession session
+		 Principal principal,
+         ModelAndView mv    
          ) {
 	   
-      Member memberinfo = memberService.member_info((String)session.getAttribute("id"));
+	  String id = principal.getName();
 
-      if (memberinfo == null) {
-         logger.info("수정보기 실패");
-         mv.setViewName("error/error");
-         mv.addObject("url", request.getRequestURL());
-         mv.addObject("message", "수정보기 실패입니다.");
-         return mv;
-      } 
-      logger.info("(수정)상세보기 성공");
-      // 수정 폼 페이지로 이동할 때 원문 글 내용을 보여주기 때문에 boarddata 객체를
-      // ModelAndView 객체에 저장합니다.
-      mv.addObject("memberinfo", memberinfo);
-      // 글 수정 폼 페이지로 이동하기 위해 경로를 설정합니다.
-      mv.setViewName("member/member_update");
+      if (id == null) {
+         mv.setViewName("redirect:login");
+         logger.info("id is null");
+      } else {
+    	  Member m = memberService.member_info(id);
+          mv.setViewName("member/member_update");
+          mv.addObject("memberinfo", m);
+      }
       return mv;
    }
    
@@ -200,7 +197,7 @@ public class MemberController2 {
 	   return url;
    }
    
-   @RequestMapping(value = "/memberList")
+   @RequestMapping(value = "/list", method = RequestMethod.GET)
    public ModelAndView memberList(@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 		   						  @RequestParam(value = "limit", defaultValue = "3", required = false) int limit,
 		   						  @RequestParam(value = "search_field", defaultValue = "-1", required = false) int index,
